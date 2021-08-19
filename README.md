@@ -16,7 +16,7 @@ In order to create a production ready cluster infraestructure, we can take advan
 # Create custom inventory
 cp -LRp contrib/terraform/openstack/sample-inventory inventory/$CLUSTER
 cd inventory/$CLUSTER
-ln -s ../../contrib/terraform/openstack/hosts
+cp ../../contrib/terraform/openstack/hosts .
 ln -s ../../contrib
 
 
@@ -35,6 +35,23 @@ export OS_CLOUD=kubespray
 terraform init ./contrib/terraform/openstack/
 terraform apply -var-file=cluster.tfvars ./contrib/terraform/openstack/
 ```
+
+> TIP: You can configure a remote swift backend using the following script:
+>```bash
+>mv hosts hosts.original
+>curl -Lo /tmp/set_remote_swift_backend.awk https://raw.githubusercontent.com/atorrescogollo/kubespray-poc/main/utils/set_remote_swift_backend.awk
+>curl -Lo hosts.patch https://raw.githubusercontent.com/atorrescogollo/kubespray-poc/main/utils/hosts.patch
+>curl -Lo hosts       https://raw.githubusercontent.com/atorrescogollo/kubespray-poc/main/utils/hosts
+>
+>awk -i inplace \
+>   -v container=kubespray \
+>   -f /tmp/set_remote_swift_backend.awk \
+>   contrib/terraform/openstack/versions.tf
+>
+>patch hosts.original < ./hosts.patch
+>chmod +x hosts
+>```
+>
 
 ```bash
 # Check reachability

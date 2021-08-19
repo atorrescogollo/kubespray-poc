@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+TMPFILE=$(mktemp)
+trap "rm -f $TMPFILE" EXIT
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+terraform="${TERRAFORM_SCRIPT:-terraform}"
+hostsfile="${ORIGINAL_HOSTS_FILE:-$SCRIPT_DIR/hosts.original}"
+
+$terraform state pull > $TMPFILE
+export TERRAFORM_STATE_FILE=$TMPFILE
+python3 $hostsfile $@
